@@ -1,0 +1,15 @@
+*.pyc
+.ipynb_checkpoints/
+.vscode/
+doc/_build
+./venv
+# Jupyter Widget
+node_modules/
+dist/
+static/
+*.egg-info*
+build/
+.DS_Store
+.idea/
+tests/.coverage
+tests/coverage.xml

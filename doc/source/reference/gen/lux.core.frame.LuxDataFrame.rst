@@ -1,0 +1,266 @@
+﻿lux.core.frame.LuxDataFrame
+===========================
+
+.. currentmodule:: lux.core.frame
+
+.. autoclass:: LuxDataFrame
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LuxDataFrame.__init__
+      ~LuxDataFrame.abs
+      ~LuxDataFrame.add
+      ~LuxDataFrame.add_prefix
+      ~LuxDataFrame.add_suffix
+      ~LuxDataFrame.agg
+      ~LuxDataFrame.aggregate
+      ~LuxDataFrame.align
+      ~LuxDataFrame.all
+      ~LuxDataFrame.any
+      ~LuxDataFrame.append
+      ~LuxDataFrame.apply
+      ~LuxDataFrame.applymap
+      ~LuxDataFrame.asfreq
+      ~LuxDataFrame.asof
+      ~LuxDataFrame.assign
+      ~LuxDataFrame.astype
+      ~LuxDataFrame.at_time
+      ~LuxDataFrame.backfill
+      ~LuxDataFrame.between_time
+      ~LuxDataFrame.bfill
+      ~LuxDataFrame.bool
+      ~LuxDataFrame.boxplot
+      ~LuxDataFrame.clear_intent
+      ~LuxDataFrame.clip
+      ~LuxDataFrame.combine
+      ~LuxDataFrame.combine_first
+      ~LuxDataFrame.compare
+      ~LuxDataFrame.compute_metadata
+      ~LuxDataFrame.convert_dtypes
+      ~LuxDataFrame.copy
+      ~LuxDataFrame.copy_intent
+      ~LuxDataFrame.corr
+      ~LuxDataFrame.corrwith
+      ~LuxDataFrame.count
+      ~LuxDataFrame.cov
+      ~LuxDataFrame.cummax
+      ~LuxDataFrame.cummin
+      ~LuxDataFrame.cumprod
+      ~LuxDataFrame.cumsum
+      ~LuxDataFrame.current_vis_to_JSON
+      ~LuxDataFrame.describe
+      ~LuxDataFrame.diff
+      ~LuxDataFrame.display_pandas
+      ~LuxDataFrame.div
+      ~LuxDataFrame.divide
+      ~LuxDataFrame.dot
+      ~LuxDataFrame.drop
+      ~LuxDataFrame.drop_duplicates
+      ~LuxDataFrame.droplevel
+      ~LuxDataFrame.dropna
+      ~LuxDataFrame.duplicated
+      ~LuxDataFrame.eq
+      ~LuxDataFrame.equals
+      ~LuxDataFrame.eval
+      ~LuxDataFrame.ewm
+      ~LuxDataFrame.expanding
+      ~LuxDataFrame.expire_metadata
+      ~LuxDataFrame.expire_recs
+      ~LuxDataFrame.explode
+      ~LuxDataFrame.ffill
+      ~LuxDataFrame.fillna
+      ~LuxDataFrame.filter
+      ~LuxDataFrame.first
+      ~LuxDataFrame.first_valid_index
+      ~LuxDataFrame.floordiv
+      ~LuxDataFrame.from_dict
+      ~LuxDataFrame.from_records
+      ~LuxDataFrame.ge
+      ~LuxDataFrame.get
+      ~LuxDataFrame.groupby
+      ~LuxDataFrame.gt
+      ~LuxDataFrame.head
+      ~LuxDataFrame.hist
+      ~LuxDataFrame.idxmax
+      ~LuxDataFrame.idxmin
+      ~LuxDataFrame.infer_objects
+      ~LuxDataFrame.info
+      ~LuxDataFrame.insert
+      ~LuxDataFrame.intent_to_JSON
+      ~LuxDataFrame.intent_to_string
+      ~LuxDataFrame.interpolate
+      ~LuxDataFrame.isin
+      ~LuxDataFrame.isna
+      ~LuxDataFrame.isnull
+      ~LuxDataFrame.items
+      ~LuxDataFrame.iteritems
+      ~LuxDataFrame.iterrows
+      ~LuxDataFrame.itertuples
+      ~LuxDataFrame.join
+      ~LuxDataFrame.keys
+      ~LuxDataFrame.kurt
+      ~LuxDataFrame.kurtosis
+      ~LuxDataFrame.last
+      ~LuxDataFrame.last_valid_index
+      ~LuxDataFrame.le
+      ~LuxDataFrame.lookup
+      ~LuxDataFrame.lt
+      ~LuxDataFrame.mad
+      ~LuxDataFrame.maintain_metadata
+      ~LuxDataFrame.maintain_recs
+      ~LuxDataFrame.mask
+      ~LuxDataFrame.max
+      ~LuxDataFrame.mean
+      ~LuxDataFrame.median
+      ~LuxDataFrame.melt
+      ~LuxDataFrame.memory_usage
+      ~LuxDataFrame.merge
+      ~LuxDataFrame.min
+      ~LuxDataFrame.mod
+      ~LuxDataFrame.mode
+      ~LuxDataFrame.mul
+      ~LuxDataFrame.multiply
+      ~LuxDataFrame.ne
+      ~LuxDataFrame.nlargest
+      ~LuxDataFrame.notna
+      ~LuxDataFrame.notnull
+      ~LuxDataFrame.nsmallest
+      ~LuxDataFrame.nunique
+      ~LuxDataFrame.pad
+      ~LuxDataFrame.pct_change
+      ~LuxDataFrame.pipe
+      ~LuxDataFrame.pivot
+      ~LuxDataFrame.pivot_table
+      ~LuxDataFrame.pop
+      ~LuxDataFrame.pow
+      ~LuxDataFrame.prod
+      ~LuxDataFrame.product
+      ~LuxDataFrame.quantile
+      ~LuxDataFrame.query
+      ~LuxDataFrame.radd
+      ~LuxDataFrame.rank
+      ~LuxDataFrame.rdiv
+      ~LuxDataFrame.rec_to_JSON
+      ~LuxDataFrame.reindex
+      ~LuxDataFrame.reindex_like
+      ~LuxDataFrame.remove_deleted_recs
+      ~LuxDataFrame.rename
+      ~LuxDataFrame.rename_axis
+      ~LuxDataFrame.render_widget
+      ~LuxDataFrame.reorder_levels
+      ~LuxDataFrame.replace
+      ~LuxDataFrame.resample
+      ~LuxDataFrame.reset_index
+      ~LuxDataFrame.rfloordiv
+      ~LuxDataFrame.rmod
+      ~LuxDataFrame.rmul
+      ~LuxDataFrame.rolling
+      ~LuxDataFrame.round
+      ~LuxDataFrame.rpow
+      ~LuxDataFrame.rsub
+      ~LuxDataFrame.rtruediv
+      ~LuxDataFrame.sample
+      ~LuxDataFrame.save_as_html
+      ~LuxDataFrame.select_dtypes
+      ~LuxDataFrame.sem
+      ~LuxDataFrame.set_axis
+      ~LuxDataFrame.set_data_type
+      ~LuxDataFrame.set_flags
+      ~LuxDataFrame.set_index
+      ~LuxDataFrame.set_intent
+      ~LuxDataFrame.set_intent_as_vis
+      ~LuxDataFrame.set_intent_on_click
+      ~LuxDataFrame.shift
+      ~LuxDataFrame.show_all_column_vis
+      ~LuxDataFrame.skew
+      ~LuxDataFrame.slice_shift
+      ~LuxDataFrame.sort_index
+      ~LuxDataFrame.sort_values
+      ~LuxDataFrame.squeeze
+      ~LuxDataFrame.stack
+      ~LuxDataFrame.std
+      ~LuxDataFrame.sub
+      ~LuxDataFrame.subtract
+      ~LuxDataFrame.sum
+      ~LuxDataFrame.swapaxes
+      ~LuxDataFrame.swaplevel
+      ~LuxDataFrame.tail
+      ~LuxDataFrame.take
+      ~LuxDataFrame.to_JSON
+      ~LuxDataFrame.to_clipboard
+      ~LuxDataFrame.to_csv
+      ~LuxDataFrame.to_dict
+      ~LuxDataFrame.to_excel
+      ~LuxDataFrame.to_feather
+      ~LuxDataFrame.to_gbq
+      ~LuxDataFrame.to_hdf
+      ~LuxDataFrame.to_html
+      ~LuxDataFrame.to_json
+      ~LuxDataFrame.to_latex
+      ~LuxDataFrame.to_markdown
+      ~LuxDataFrame.to_numpy
+      ~LuxDataFrame.to_pandas
+      ~LuxDataFrame.to_parquet
+      ~LuxDataFrame.to_period
+      ~LuxDataFrame.to_pickle
+      ~LuxDataFrame.to_records
+      ~LuxDataFrame.to_sql
+      ~LuxDataFrame.to_stata
+      ~LuxDataFrame.to_string
+      ~LuxDataFrame.to_timestamp
+      ~LuxDataFrame.to_xarray
+      ~LuxDataFrame.to_xml
+      ~LuxDataFrame.transform
+      ~LuxDataFrame.transpose
+      ~LuxDataFrame.truediv
+      ~LuxDataFrame.truncate
+      ~LuxDataFrame.tshift
+      ~LuxDataFrame.tz_convert
+      ~LuxDataFrame.tz_localize
+      ~LuxDataFrame.unstack
+      ~LuxDataFrame.update
+      ~LuxDataFrame.value_counts
+      ~LuxDataFrame.var
+      ~LuxDataFrame.where
+      ~LuxDataFrame.xs
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LuxDataFrame.T
+      ~LuxDataFrame.at
+      ~LuxDataFrame.attrs
+      ~LuxDataFrame.axes
+      ~LuxDataFrame.columns
+      ~LuxDataFrame.current_vis
+      ~LuxDataFrame.data_type
+      ~LuxDataFrame.dtypes
+      ~LuxDataFrame.empty
+      ~LuxDataFrame.exported
+      ~LuxDataFrame.flags
+      ~LuxDataFrame.history
+      ~LuxDataFrame.iat
+      ~LuxDataFrame.iloc
+      ~LuxDataFrame.index
+      ~LuxDataFrame.intent
+      ~LuxDataFrame.loc
+      ~LuxDataFrame.ndim
+      ~LuxDataFrame.recommendation
+      ~LuxDataFrame.shape
+      ~LuxDataFrame.size
+      ~LuxDataFrame.style
+      ~LuxDataFrame.values
+      ~LuxDataFrame.widget
+   
+   
