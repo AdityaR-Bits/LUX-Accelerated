@@ -1,0 +1,23 @@
+,action,description,long_description,collection
+0,Correlation,Show relationships between two <p class='highlight-descriptor'>quantitative</p> attributes.,"Correlation searches through all pairwise relationship between two quantitative attributes             (e.g., population_size, state_population_size). The visualizations are ranked from most to least linearly correlated based on                 their Pearson’s correlation score.","[<Vis  (x: severityScore        , y: severityMax          ) mark: scatter, score: 1.00 >,
+ <Vis  (x: state_population_size, y: population_size      ) mark: scatter, score: 0.81 >,
+ <Vis  (x: severityMax          , y: state_population_size) mark: scatter, score: 0.65 >,
+ <Vis  (x: severityScore        , y: state_population_size) mark: scatter, score: 0.65 >,
+ <Vis  (x: interventionFootprint, y: severityMax          ) mark: scatter, score: 0.43 >,
+ <Vis  (x: interventionFootprint, y: severityScore        ) mark: scatter, score: 0.43 >,
+ <Vis  (x: severityMax          , y: population_size      ) mark: scatter, score: 0.30 >,
+ <Vis  (x: severityScore        , y: population_size      ) mark: scatter, score: 0.30 >,
+ <Vis  (x: interventionFootprint, y: state_population_size) mark: scatter, score: 0.17 >,
+ <Vis  (x: interventionFootprint, y: population_size      ) mark: scatter, score: 0.10 >]"
+1,Distribution,Show univariate histograms of <p class='highlight-descriptor'>quantitative</p>  attributes.,"Distribution displays univariate histogram distributions of all quantitative attributes (e.g., population_size). Visualizations are ranked from most to least skewed.","[<Vis  (x: BIN(severityScore)        , y: COUNT(Record)) mark: histogram, score: 2.58 >,
+ <Vis  (x: BIN(severityMax)          , y: COUNT(Record)) mark: histogram, score: 2.58 >,
+ <Vis  (x: BIN(state_population_size), y: COUNT(Record)) mark: histogram, score: 2.52 >,
+ <Vis  (x: BIN(population_size)      , y: COUNT(Record)) mark: histogram, score: 1.42 >,
+ <Vis  (x: BIN(interventionFootprint), y: COUNT(Record)) mark: histogram, score: -0.17 >]"
+2,Occurrence,Show frequency of occurrence for <p class='highlight-descriptor'>categorical</p> attributes.,"Occurence displays bar charts of counts for all categorical attributes (e.g., dateBefore). Visualizations are ranked from most to least uneven across the bars. ","[<Vis  (x: COUNT(Record), y: pctStateAffected) mark: bar, score: 0.39 >,
+ <Vis  (x: COUNT(Record), y: dateBefore      ) mark: bar, score: 0.00 >]"
+3,Geographical,Show choropleth maps of <p class='highlight-descriptor'>geographic</p> attributes,"Occurence displays choropleths of averages for some geographic attribute (e.g., State). Visualizations are ranked by diversity of the geographic attribute.","[<Vis  (x: State, y: MEAN(population_size)      ) mark: geographical, score: 50.00 >,
+ <Vis  (x: State, y: MEAN(state_population_size)) mark: geographical, score: 50.00 >,
+ <Vis  (x: State, y: MEAN(severityMax)          ) mark: geographical, score: 50.00 >,
+ <Vis  (x: State, y: MEAN(severityScore)        ) mark: geographical, score: 50.00 >,
+ <Vis  (x: State, y: MEAN(interventionFootprint)) mark: geographical, score: 50.00 >]"

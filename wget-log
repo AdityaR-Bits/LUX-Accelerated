@@ -1,0 +1,6 @@
+--2022-08-16 10:36:51--  https://storage.googleapis.com/kagglesdsdata/datasets/831691/1428241/us-states.json?X-Goog-Algorithm=GOOG4-RSA-SHA256
+Resolving storage.googleapis.com (storage.googleapis.com)... 172.217.14.80, 142.250.68.80, 142.250.68.112, ...
+Connecting to storage.googleapis.com (storage.googleapis.com)|172.217.14.80|:443... connected.
+HTTP request sent, awaiting response... 400 Bad Request
+2022-08-16 10:36:52 ERROR 400: Bad Request.
+
