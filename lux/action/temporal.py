@@ -33,37 +33,30 @@ def temporal(ldf):
     recommendations : Dict[str,obj]
             Object with a collection of visualizations that result from the Temporal action.
     """
-    #print("inside action temporal")
     vlist = []
     recommendation = {
         "action": "Temporal",
         "description": "Show trends over <p class='highlight-descriptor'>time-related</p> attributes.",
         "long_description": "Temporal displays line charts for all attributes related to datetimes in the dataframe.",
     }
-    #print("\n ldf in temporal : ",  ldf.columns)
     for c in ldf.columns:
-        #print("c datatype :", ldf.data_type[c])
         if ldf.data_type[c] == "temporal":
             try:
-                #print("going to create temporal")
                 generated_vis = create_temporal_vis(ldf, c)
                 vlist.extend(generated_vis)
             except:
-                #print("didnt work")
                 pass
             # generated_vis = create_temporal_vis(ldf, c)
             # vlist.extend(generated_vis)
 
     # If no temporal visualizations were generated via parsing datetime, fallback to default behavior.
     if len(vlist) == 0:
-        #print("wrong stuf!!!!!!!!!!!")
         intent = [lux.Clause("?", data_type="temporal")]
         intent.extend(utils.get_filter_specs(ldf._intent))
         vlist = VisList(intent, ldf)
         for vis in vlist:
             vis.score = interestingness(vis, ldf)
     else:
-        #print("right stuf!!!!!")
         vlist = VisList(vlist)
         recommendation["long_description"] += (
             " Lux displays the overall temporal trend first,"
@@ -95,15 +88,12 @@ def create_temporal_vis(ldf, col):
     vlist : [Vis]
             Collection of Vis objects.
     """
-    #print("create_temporal_vis")
     formatted_date = cudf.to_datetime(ldf[col])
 
     overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
 
     year_col = col + " (year)"
-    #year_df = LuxDataFrame({year_col: cudf.to_datetime(formatted_date.dt.year, format="%Y")})
     year_df = LuxDataFrame({year_col: cudf.to_datetime(formatted_date.year)})
-    #print("\n year : ", year_df , formatted_date)
     year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
 
     month_col = col + " (month)"

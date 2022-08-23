@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 
-from lux.vislib.altair.AltairRenderer import AltairRenderer
+# from lux.vislib.altair.AltairRenderer import AltairRenderer
 from lux.utils.utils import check_import_lux_widget
 from typing import List, Union, Callable, Dict
 from lux.vis.Vis import Vis
@@ -31,9 +31,7 @@ class VisList:
         self._source = source
         self._input_lst = input_lst
         if len(input_lst) > 0:
-            #print("init working correctly1")
             if self._is_vis_input():
-                #print("init working correctly2")
                 self._collection = input_lst
                 self._intent = []
             else:
@@ -128,7 +126,6 @@ class VisList:
     def __repr__(self):
         if len(self._collection) == 0:
             return str(self._input_lst)
-        #print("\n done here \n")
         x_channel = ""
         y_channel = ""
         largest_mark = 0
@@ -160,7 +157,6 @@ class VisList:
                 and len(str(filter_intents.value)) + len(str(filter_intents.attribute)) > largest_filter
             ):
                 largest_filter = len(str(filter_intents.value)) + len(str(filter_intents.attribute))
-            #print("vis refresh repr :", vis.data)
         vis_repr = []
         largest_x_length = len(x_channel)
         largest_y_length = len(y_channel)
@@ -307,12 +303,11 @@ class VisList:
         ----
         Function derives a new _inferred_intent by instantiating the intent specification on the new data
         """
-        #print("inside vislist refresh")
         if ldf is not None:
             from lux.processor.Parser import Parser
             from lux.processor.Validator import Validator
             from lux.processor.Compiler import Compiler
-            #print("refresh vislist called")
+            
             self._source = ldf
             self._source.maintain_metadata()
             if len(self._input_lst) > 0:
@@ -320,30 +315,30 @@ class VisList:
                 if self._is_vis_input():
                     compiled_collection = []
                     for vis in self._collection:
-                        #print("refresh vislist")
+                        
                         vis._inferred_intent = Parser.parse(vis._intent)
-                        #print("pass 1")
+                       
                         Validator.validate_intent(vis._inferred_intent, ldf)
-                        #print("pass 2")
+                        
                         Compiler.compile_vis(ldf, vis)
-                        #print("pass 3")
+                        
                         compiled_collection.append(vis)
-                        #print("vis in vislist", vis)
+                        
                     self._collection = compiled_collection
                 else:
-                    #print("what is this")
+                    
                     self._inferred_intent = Parser.parse(self._intent)
-                    #print("what is this1 ", self._inferred_intent)
+                   
                     Validator.validate_intent(self._inferred_intent, ldf)
                     self._collection = Compiler.compile_intent(ldf, self._inferred_intent)
-                    #print("what is this2 ", self._collection)
+                    
 
                 # Early pruning determination criteria
                 width_criteria = len(self._collection) > (lux.config.topk + 3)
                 length_criteria = len(ldf) > lux.config.early_pruning_sample_start
-                #print("criteria", width_criteria, length_criteria)
+                
                 if lux.config.early_pruning and width_criteria and length_criteria:
-                    # print("Apply approx to this VisList")
+                    
                     ldf._message.add_unique(
                         "Large search space detected: Lux is approximating the interestingness of recommended visualizations.",
                         priority=1,
@@ -352,6 +347,3 @@ class VisList:
                 #EX.Executor().execute(self._collection, ldf, approx=approx)#lux.config.executor.execute(self._collection, ldf, approx=approx)
                 
                 PE.PandasExecutor().execute(self._collection, ldf, approx=approx)
-               # print("collect all", self._collection)
-                # for vis in self._collection:
-                #     print("vlist here new2 ",vis.data)

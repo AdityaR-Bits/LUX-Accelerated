@@ -40,7 +40,6 @@ class PandasExecutor(Executor):
     def __init__(self):
         self.name = "PandasExecutor"
         warnings.formatwarning = wf#lux.warning_format
-        #print("pandas executor")
 
     def __repr__(self):
         return f"<PandasExecutor>"
@@ -67,7 +66,6 @@ class PandasExecutor(Executor):
         SAMPLE_FRAC = 0.75
 
         if SAMPLE_FLAG and len(ldf) > SAMPLE_CAP:
-            #print("wrong 1")
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(n=SAMPLE_CAP, random_state=1)
             ldf._message.add_unique(
@@ -75,7 +73,6 @@ class PandasExecutor(Executor):
                 priority=99,
             )
         elif SAMPLE_FLAG and len(ldf) > SAMPLE_START:
-            #print("wrong 2")
             if ldf._sampled is None:  # memoize unfiltered sample df
                 ldf._sampled = ldf.sample(frac=SAMPLE_FRAC, random_state=1)
             ldf._message.add_unique(
@@ -83,7 +80,6 @@ class PandasExecutor(Executor):
                 priority=99,
             )
         else:
-            #print("right 1")
             ldf._sampled = ldf
 
     @staticmethod
@@ -98,13 +94,9 @@ class PandasExecutor(Executor):
         """
         if ldf._approx_sample is None:
             if len(ldf._sampled) > lux.config.early_pruning_sample_start:
-                #print("prob 1", lux.config.early_pruning_sample_cap)
                 ldf._approx_sample = ldf._sampled.sample(n=lux.config.early_pruning_sample_cap, random_state=1)
-                #print("app samp :", ldf._approx_sample.data.unique_values)
             else:
-                #print("prob 2")
                 ldf._approx_sample = ldf._sampled   
-        #else:#print("shouldnt be here")
     @staticmethod
     def execute(vislist, ldf, approx=False):
         """
@@ -125,8 +117,6 @@ class PandasExecutor(Executor):
         -------
         None
         """
-        # for vis in vislist:
-        #     print("debug 0 :", vis.data.unique_values)
         PandasExecutor.execute_sampling(ldf)
         for vis in vislist:
             # The vis data starts off being original or sampled dataframe
@@ -139,16 +129,8 @@ class PandasExecutor(Executor):
                 PandasExecutor.execute_approx_sample(ldf)
                 vis._vis_data = ldf._approx_sample
                 dic={}
-                # for col in vis._vis_data.columns:
-                #     vals = vis._vis_data[col].unique()
-                #     dic[col] = vals.to_arrow().to_pylist()
-                # vis.data.unique_values = dic
-                #vis.data.unique_values = 
-                #issue here with unique being empty
-                #print("nnow 1:", vis.data.unique_values)
                 
                 vis.approx = True
-            #print("debug 4 :", len(vis._vis_data.unique_values))
             filter_executed = PandasExecutor.execute_filter(vis)
             # Select relevant data based on attribute information
             attributes = set([])
@@ -156,21 +138,16 @@ class PandasExecutor(Executor):
                 if clause.attribute != "Record":
                     attributes.add(clause.attribute)
             # TODO: Add some type of cap size on Nrows ?
-            #print("debug 3 :", len(vis.data.unique_values))
             vis._vis_data = vis._vis_data[list(attributes)]
             
             if vis.mark == "bar" or vis.mark == "line" or vis.mark == "geographical":
-                #pass
                 dic={}
                 for col in vis._vis_data.columns:
-                    #print("col here")
                     vals = vis._vis_data[col].unique()
                     dic[col] = vals.to_arrow().to_pylist()
                 vis.data.unique_values = dic
-                #print("debug 2 :", len(vis.data.unique_values))
                 PandasExecutor.execute_aggregate(vis, isFiltered=filter_executed)
             elif vis.mark == "histogram":
-                #vis.data.unique_values = 
                 PandasExecutor.execute_binning(ldf, vis)
             elif vis.mark == "heatmap":
                 # Early pruning based on interestingness of scatterplots
@@ -181,8 +158,6 @@ class PandasExecutor(Executor):
                     PandasExecutor.execute_2D_binning(vis)
             # Ensure that intent is not propogated to the vis data (bypass intent setter, since trigger vis.data metadata recompute)
             vis.data._intent = []
-            #print("***passed here atleast once##", vis.mark)
-
     @staticmethod
     def execute_aggregate(vis, isFiltered=True):
         """
@@ -200,7 +175,6 @@ class PandasExecutor(Executor):
         None
         """
         import numpy as np
-        #print("execute aggregate called")
         x_attr = vis.get_attr_by_channel("x")[0]
         y_attr = vis.get_attr_by_channel("y")[0]
         has_color = False
@@ -217,8 +191,7 @@ class PandasExecutor(Executor):
             groupby_attr = y_attr
             measure_attr = x_attr
             agg_func = x_attr.aggregation
-        #print("uni keys", type(vis.data.unique_values))
-        #issue jere
+
         if groupby_attr.attribute in vis.data.unique_values.keys():
             attr_unique_vals = vis.data.unique_values.get(groupby_attr.attribute)
             
@@ -339,12 +312,12 @@ class PandasExecutor(Executor):
             series = timedelta64_to_float_seconds(series)
 
         counts, bin_edges = np.histogram(series.to_pandas(), bins=bin_attribute.bin_size)
-        #print("counts and edges :", counts, bin_edges)
+
         # bin_edges of size N+1, so need to compute bin_start as the bin location
         bin_start = bin_edges[0:-1]
         binned_result = np.array([bin_start, counts]).T
         vis._vis_data = cudf.DataFrame(binned_result, columns=[bin_attr, "Number of Records"])
-        #print("count vis data", vis.data.unique_values)
+       
 
     @staticmethod
     def execute_filter(vis) -> bool:
@@ -489,16 +462,8 @@ class PandasExecutor(Executor):
 
     def compute_data_type(self, ldf):
         from pandas.api.types import is_datetime64_any_dtype as is_datetime
-        #print("override ",ldf._type_override)
-        #print("\n ldf.columns :", ldf.dtypes)
+    
         for attr in list(ldf.columns):
-            #print("att dtype :", ldf.dtypes[attr])
-            # try:
-            #     dat = cudf.to_datetime(ldf[attr])
-            #     print(attr, type(dat))
-            # except:
-            #print(attr, type(ldf.dtypes[attr]))
-            #print(attr, type(attr))
             
             if attr in ldf._type_override:
                 ldf._data_type[attr] = ldf._type_override[attr]
@@ -506,40 +471,32 @@ class PandasExecutor(Executor):
                 temporal_var_list = ["month", "year", "day", "date", "time", "weekday"]
 
                 if is_timedelta64_series(ldf[attr]):
-                   # print("inside is_timedelta64_series")
                     ldf._data_type[attr] = "quantitative"
                     ldf._min_max[attr] = (
                         timedelta64_to_float_seconds(ldf[attr].min()),
                         timedelta64_to_float_seconds(ldf[attr].max()),
                     )
                 elif ldf.dtypes[attr]=='datetime64[ns]':
-                    #print("inside datetime64")
+                    
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_string(ldf[attr]):
-                    #print("back1") 
-                    #print("is datetime string")
                     ldf._data_type[attr] = "temporal"
                 elif isinstance(attr, cudf.core.index.DatetimeIndex):
-                    #print("back2") 
                     ldf._data_type[attr] = "temporal"
                 elif str(attr).lower() in temporal_var_list:
-                    print("back3")
                     ldf._data_type[attr] = "temporal"
                 elif self._is_datetime_number(ldf[attr]):
-                    #print("back4")
                     ldf._data_type[attr] = "temporal"
                 elif self._is_geographical_attribute(ldf[attr]):
                     ldf._data_type[attr] = "geographical"
                 #elif pd.api.types.is_float_dtype(ldf.dtypes[attr]):
                 elif ldf.dtypes[attr] =='float64':
-                    #print("inside float")
                     if ldf.cardinality[attr] != len(ldf) and (ldf.cardinality[attr] < 20):
                         ldf._data_type[attr] = "nominal"
                     else:
                         ldf._data_type[attr] = "quantitative"
                 #elif pd.api.types.is_integer_dtype(ldf.dtypes[attr]):
                 elif ldf.dtypes[attr]=='int64':
-                    #print("inside integer")
                     # See if integer value is quantitative or nominal by checking if the ratio of cardinality/data size is less than 0.4 and if there are less than 10 unique values
                     if ldf.pre_aggregated:
                         if ldf.cardinality[attr] == len(ldf):
@@ -580,7 +537,6 @@ class PandasExecutor(Executor):
         for attr in ldf.columns:
             #if ldf._data_type[attr] == "temporal" and not is_datetime(ldf[attr]):
             if ldf._data_type[attr] == "temporal" and not ldf.dtypes[attr]=='datetime64[ns]':
-                #print("inside here")
                 non_datetime_attrs.append(attr)
         warn_msg = ""
         if len(non_datetime_attrs) == 1:
@@ -623,15 +579,10 @@ class PandasExecutor(Executor):
 
     @staticmethod
     def _is_datetime_number(series):
-        #ind = cudf.Index(series.dtype)
-        #print("Inside is datettime_number ", series.dtype)
-        #is_int_dtype = series.dtype=='int64'
         if series.dtype=='int64':
             try:
                 temp = series.astype(str)
-                #print("1")
                 cudf.to_datetime(temp)
-                #print("1end")
                 return True
             except Exception:
                 return False
@@ -643,21 +594,15 @@ class PandasExecutor(Executor):
         ldf._min_max = {}
         ldf.cardinality = {}
         ldf._length = len(ldf)
-        #print("in compute_stats type : ", type(self))
-        #print("stats : ",ldf)
-        #print("calling ldf", ldf)
         for attribute in ldf.columns:
-            #print("attribute type : ",type(attribute))
             #if isinstance(attribute, pd._libs.tslibs.timestamps.Timestamp):
             if isinstance(attribute, cudf.core.index.DatetimeIndex):
                 # If timestamp, make the dictionary keys the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 attribute_repr = str(attribute._date_repr)
             else:
                 attribute_repr = attribute
-            #print("here ",type(ldf[attribute].unique().values_host))
             ldf.unique_values[attribute_repr] = list(ldf[attribute].unique().values_host)#list(ldf[attribute].unique())
-            
-            #print("unique stuff :", ldf.unique_values[attribute_repr])
+        
             ldf.cardinality[attribute_repr] = len(ldf.unique_values[attribute_repr])
             # print("ind" ,attribute)
             #print("indtype", type(ldf.dtypes[attribute]).__name__)
@@ -671,14 +616,8 @@ class PandasExecutor(Executor):
             #if ind.is_integer() or ind.is_floating():
             #if isinstance(ldf.dtypes[attribute], type(ldf.dtypes['VendorID'])) or isinstance(ldf.dtypes[attribute], type(ldf.dtypes['trip_distance'])):
             if ldf.dtypes[attribute] == 'int64' or ldf.dtypes[attribute] =='float64':
-                #print("ifffff")
                 ldf._min_max[attribute_repr] = (ldf[attribute].min(),ldf[attribute].max(),)
-        #print("\n ldf unique value \n", ldf.unique_values.head(10))
-        #if not pd.api.types.is_integer_dtype(ldf.index):
-        # print("---")
-        #print("ldf index :",ldf.index.is_integer())
         if not ldf.index.is_integer():
             index_column_name = ldf.index.name
             ldf.unique_values[index_column_name] = list(ldf.index.values_host)
-            #print("unique stuff2 :", ldf.unique_values[index_column_name])
             ldf.cardinality[index_column_name] = len(ldf.index.values_host)

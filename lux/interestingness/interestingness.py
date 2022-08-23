@@ -43,11 +43,8 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
     -------
     int
             Interestingness Score
-    """
-    #print("interestingness called", vis.data)
-    
+    """ 
     if vis.data is None or len(vis.data) == 0:
-        #print("gone wrong haywire")
         return -1
         # raise Exception("Vis.data needs to be populated before interestingness can be computed. Run Executor.execute(vis,ldf).")
 #     try:
@@ -171,135 +168,127 @@ def interestingness(vis: Vis, ldf: LuxDataFrame) -> int:
 #             return -1
 #         else:
 #             raise
-    #print("lets get started")
-    filter_specs = utils.get_filter_specs(vis._inferred_intent)
-    vis_attrs_specs = utils.get_attrs_specs(vis._inferred_intent)
-    n_dim = vis._ndim
-    n_msr = vis._nmsr
-    n_filter = len(filter_specs)
-    attr_specs = [clause for clause in vis_attrs_specs if clause.attribute != "Record"]
-    dimension_lst = vis.get_attr_by_data_model("dimension")
-    measure_lst = vis.get_attr_by_data_model("measure")
-    v_size = len(vis.data)
+    try:
+        filter_specs = utils.get_filter_specs(vis._inferred_intent)
+        vis_attrs_specs = utils.get_attrs_specs(vis._inferred_intent)
+        n_dim = vis._ndim
+        n_msr = vis._nmsr
+        n_filter = len(filter_specs)
+        attr_specs = [clause for clause in vis_attrs_specs if clause.attribute != "Record"]
+        dimension_lst = vis.get_attr_by_data_model("dimension")
+        measure_lst = vis.get_attr_by_data_model("measure")
+        v_size = len(vis.data)
 
-    if (
-        n_dim == 1
-        and (n_msr == 0 or n_msr == 1)
-        and ldf.current_vis is not None
-        and vis.get_attr_by_channel("y")[0].data_type == "quantitative"
-        and len(ldf.current_vis) == 1
-        and ldf.current_vis[0].mark == "line"
-        and len(get_filter_specs(ldf.intent)) > 0
-    ):
-        #print("inside this condition 1")
-        query_vc = VisList(ldf.current_vis, ldf)
-        query_vis = query_vc[0]
-        preprocess(query_vis)
-        preprocess(vis)
-        return 1 - euclidean_dist(query_vis, vis)
+        if (
+            n_dim == 1
+            and (n_msr == 0 or n_msr == 1)
+            and ldf.current_vis is not None
+            and vis.get_attr_by_channel("y")[0].data_type == "quantitative"
+            and len(ldf.current_vis) == 1
+            and ldf.current_vis[0].mark == "line"
+            and len(get_filter_specs(ldf.intent)) > 0
+        ):
+            query_vc = VisList(ldf.current_vis, ldf)
+            query_vis = query_vc[0]
+            preprocess(query_vis)
+            preprocess(vis)
+            return 1 - euclidean_dist(query_vis, vis)
 
-    # Line/Bar Chart
-    if n_dim == 1 and (n_msr == 0 or n_msr == 1):
-        if v_size < 2:
-            return -1
+        # Line/Bar Chart
+        if n_dim == 1 and (n_msr == 0 or n_msr == 1):
+            if v_size < 2:
+                return -1
 
-        if vis.mark == "geographical":
-            return n_distinct(vis, dimension_lst, measure_lst)
-        if n_filter == 0:
-            return unevenness(vis, ldf, measure_lst, dimension_lst)
-        elif n_filter == 1:
-            return deviation_from_overall(vis, ldf, filter_specs, measure_lst[0].attribute)
-    # Histogram
-    elif n_dim == 0 and n_msr == 1:
-        if v_size < 2:
+            if vis.mark == "geographical":
+                return n_distinct(vis, dimension_lst, measure_lst)
+            if n_filter == 0:
+                return unevenness(vis, ldf, measure_lst, dimension_lst)
+            elif n_filter == 1:
+                return deviation_from_overall(vis, ldf, filter_specs, measure_lst[0].attribute)
+        # Histogram
+        elif n_dim == 0 and n_msr == 1:
+            if v_size < 2:
+                return -1
+            if n_filter == 0 and "Number of Records" in vis.data:
+                if "Number of Records" in vis.data:
+                    v = vis.data["Number of Records"]
+                    return skewness(v)
+            elif n_filter == 1 and "Number of Records" in vis.data:
+                return deviation_from_overall(vis, ldf, filter_specs, "Number of Records")
             return -1
-        if n_filter == 0 and "Number of Records" in vis.data:
-            if "Number of Records" in vis.data:
-                v = vis.data["Number of Records"]
-                return skewness(v)
-        elif n_filter == 1 and "Number of Records" in vis.data:
-            return deviation_from_overall(vis, ldf, filter_specs, "Number of Records")
-        return -1
-    # Scatter Plot
-    elif n_dim == 0 and n_msr == 2:
-        #print("inside this condition 2")
-        if v_size < 10:
-            #print("bad - 1")
-            return -1
-        if vis.mark == "heatmap":
-            #print("bad - 2")
-            return weighted_correlation(
-                vis.data["xBinStart"], vis.data["yBinStart"], vis.data["count"]
+        # Scatter Plot
+        elif n_dim == 0 and n_msr == 2:
+            if v_size < 10:
+                return -1
+            if vis.mark == "heatmap":
+                return weighted_correlation(
+                    vis.data["xBinStart"], vis.data["yBinStart"], vis.data["count"]
+                )
+            if n_filter == 1:
+                v_filter_size = get_filtered_size(filter_specs, vis.data)
+                sig = v_filter_size / v_size
+            else:
+                sig = 1
+            return sig * monotonicity(vis, attr_specs)
+        # Scatterplot colored by Dimension
+        elif n_dim == 1 and n_msr == 2:
+            if v_size < 10:
+                return -1
+            color_attr = vis.get_attr_by_channel("color")[0].attribute
+
+            C = ldf.cardinality[color_attr]
+            if C < 40:
+                return 1 / C
+            else:
+                return -1
+        # Scatterplot colored by dimension
+        elif n_dim == 1 and n_msr == 2:
+            return 0.2
+        # Scatterplot colored by measure
+        elif n_msr == 3:
+            return 0.1
+        # colored line and barchart cases
+        elif vis.mark == "line" and n_dim == 2:
+            return 0.15
+        # for colored bar chart, scoring based on Chi-square test for independence score.
+        # gives higher scores to colored bar charts with fewer total categories as these charts are easier to read and thus more useful for users
+        elif vis.mark == "bar" and n_dim == 2:
+            from scipy.stats import chi2_contingency
+
+            measure_column = vis.get_attr_by_data_model("measure")[0].attribute
+            dimension_columns = vis.get_attr_by_data_model("dimension")
+
+            groupby_column = dimension_columns[0].attribute
+            color_column = dimension_columns[1].attribute
+            #needs work here
+            contingency_tbl = pd.crosstab(
+                vis.data[groupby_column],
+                vis.data[color_column],
+                values=vis.data[measure_column],
+                aggfunc=sum,
             )
-        if n_filter == 1:
-            #print("bad - 3")
-            v_filter_size = get_filtered_size(filter_specs, vis.data)
-            sig = v_filter_size / v_size
-        else:
-            sig = 1
-        #print("mono :", monotonicity(vis, attr_specs))
-        return sig * monotonicity(vis, attr_specs)
-    # Scatterplot colored by Dimension
-    elif n_dim == 1 and n_msr == 2:
-        #print("inside this condition 3")
-        if v_size < 10:
+
+            try:
+                color_cardinality = ldf.cardinality[color_column]
+                groupby_cardinality = ldf.cardinality[groupby_column]
+                # scale down score based on number of categories
+                score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
+                    color_cardinality + groupby_cardinality
+                )
+            except (ValueError, KeyError):
+                # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
+                score = -1
+            return score
+    except:
+        if lux.config.interestingness_fallback:
+            # Supress interestingness related issues
+            warnings.warn(f"An error occurred when computing interestingness for: {vis}")
             return -1
-        color_attr = vis.get_attr_by_channel("color")[0].attribute
-
-        C = ldf.cardinality[color_attr]
-        if C < 40:
-            return 1 / C
         else:
-            return -1
-    # Scatterplot colored by dimension
-    elif n_dim == 1 and n_msr == 2:
-        return 0.2
-    # Scatterplot colored by measure
-    elif n_msr == 3:
-        return 0.1
-    # colored line and barchart cases
-    elif vis.mark == "line" and n_dim == 2:
-        return 0.15
-    # for colored bar chart, scoring based on Chi-square test for independence score.
-    # gives higher scores to colored bar charts with fewer total categories as these charts are easier to read and thus more useful for users
-    elif vis.mark == "bar" and n_dim == 2:
-        from scipy.stats import chi2_contingency
-
-        measure_column = vis.get_attr_by_data_model("measure")[0].attribute
-        dimension_columns = vis.get_attr_by_data_model("dimension")
-
-        groupby_column = dimension_columns[0].attribute
-        color_column = dimension_columns[1].attribute
-        #print("crosstab called")
-        contingency_tbl = pd.crosstab(
-            vis.data[groupby_column],
-            vis.data[color_column],
-            values=vis.data[measure_column],
-            aggfunc=sum,
-        )
-
-        try:
-            color_cardinality = ldf.cardinality[color_column]
-            groupby_cardinality = ldf.cardinality[groupby_column]
-            # scale down score based on number of categories
-            score = chi2_contingency(contingency_tbl)[0] * 0.9 ** (
-                color_cardinality + groupby_cardinality
-            )
-        except (ValueError, KeyError):
-            # ValueError results if an entire column of the contingency table is 0, can happen if an applied filter results in a category having no counts
-            score = -1
-        return score
-    # Default
-    else:
-        #print("inside this condition bad")
-        return -1
-#     except:
-#         if lux.config.interestingness_fallback:
-#             # Supress interestingness related issues
-#             warnings.warn(f"An error occurred when computing interestingness for: {vis}")
-#             return -1
-#         else:
-#             raise
+            raise
+    # # Default
+    # else:
+    #     return -1
 
 
 def get_filtered_size(filter_specs, ldf):
@@ -432,7 +421,6 @@ def unevenness(vis: Vis, ldf: LuxDataFrame, measure_lst: list, dimension_lst: li
     int
             Score describing how uneven the bar chart is.
     """
-    #print("inter unneven :", measure_lst[0].attribute, vis.data)
     v = vis.data[measure_lst[0].attribute]
     v = v / v.sum()  # normalize by total to get ratio
     v = v.fillna(0)  # Some bar values may be NaN
@@ -485,26 +473,16 @@ def monotonicity(vis: Vis, attr_specs: list, ignore_identity: bool = True) -> in
     vxy = vis.data.dropna()
     v_x = vxy[msr1]
     v_y = vxy[msr2]
-    #print("msr mono :", msr1,msr2)
-    # v_x = v_x.to_numpy()
-    # v_y = v_y.to_numpy()
-    #print("type vx :", type(v_x))
-    #print("vxy mono :", v_x.sum(), v_y.sum())
 
     import warnings
 
     with warnings.catch_warnings():
         warnings.filterwarnings("error")
-        score = np.abs(pearsonr(v_x.to_numpy(),v_y.to_numpy())[0])
-        # try:
-        #     score = np.abs(pearsonr(v_x.to_numpy(), v_y.to_numpy())[0])
-        # except:
-        #     # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
-        #     score = -1
-
-    #if pd.isnull(score):
-    # if score.isnull():
-    #     return -1
+        try:
+            score = np.abs(pearsonr(v_x.to_numpy(),v_y.to_numpy())[0])
+        except:
+                # RuntimeWarning: invalid value encountered in true_divide (occurs when v_x and v_y are uniform, stdev in denominator is zero, leading to spearman's correlation as nan), ignore these cases.
+            score = -1
     if not score:
         return -1
     else:

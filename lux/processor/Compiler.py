@@ -86,23 +86,18 @@ class Compiler:
         """
         
         valid_intent = _inferred_intent  # ensures intent is non-empty
-        #print("valid intent :", valid_intent)
         if valid_intent and Validator.validate_intent(_inferred_intent, ldf, True):
             vis_collection = Compiler.enumerate_collection(_inferred_intent, ldf)
-            # for vis in vis_collection:
-            #     print("vis_collect data1 :", vis.data)
+           
             # autofill data type/model information
             Compiler.populate_data_type_model(ldf, vis_collection)
-            # for vis in vis_collection:
-            #     print("vis_collect data2 :", vis.data)
+        
             # remove invalid visualizations from collection
             if len(vis_collection) >= 1:
                 vis_collection = Compiler.remove_all_invalid(vis_collection)
             for vis in vis_collection:
                 # autofill viz related information
                 Compiler.determine_encoding(ldf, vis)
-            #for vis in vis_collection:
-                    #print("vis_collect data3 :", vis.data)
             ldf._compiled = True
             return vis_collection
         elif _inferred_intent:
@@ -280,7 +275,6 @@ class Compiler:
             if measure.aggregation == "":
                 measure.set_aggregation("mean")
             if dim_type == "temporal" or dim_type == "oridinal":
-                #print("print timestamp :", ldf[dimension.attribute].iloc[1])
                 # if isinstance(dimension.attribute, cudf.Timestamp):
                 #     # If timestamp, use the _repr_ (e.g., TimeStamp('2020-04-05 00.000')--> '2020-04-05')
                 #     attr = str(dimension.attribute._date_repr)

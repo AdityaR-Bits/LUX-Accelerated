@@ -40,18 +40,15 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     """
 
     import numpy as np
-    #print("inside action correlation")
     filter_specs = utils.get_filter_specs(ldf._intent)
     intent = [
         lux.Clause("?", data_model="measure"),
         lux.Clause("?", data_model="measure"),
     ]
     intent.extend(filter_specs)
-    #print("intent", intent)
     vlist = VisList(intent, ldf)
     examples = ""
     if len(vlist) > 1:
-        #print("correct correlation1")
         measures = vlist[0].get_attr_by_data_model("measure")
         if len(measures) >= 2:
             examples = f" (e.g., {measures[0].attribute}, {measures[1].attribute})"
@@ -67,30 +64,20 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     if len(ldf) < 5:
         ignore_rec_flag = True
     # Then use the data populated in the vis list to compute score
-    #print("vislist :", vlist)
     for vis in vlist:
-        #print("correlation vdata ",vis.data)
-        #print("correct correlation2")
         measures = vis.get_attr_by_data_model("measure")
-        #print("measure : ", measures)
         if len(measures) < 2:
             raise ValueError(
                 f"Can not compute correlation between {[x.attribute for x in ldf.columns]} since less than 2 measure values present."
             )
         msr1 = measures[0].attribute
         msr2 = measures[1].attribute
-        #print("msr :", msr1,msr2)
         if ignore_transpose:
-            #print("ig1")
             check_transpose = check_transpose_not_computed(vlist, msr1, msr2)
         else:
             check_transpose = True
-        #print("checking transpose ",check_transpose )
         if check_transpose:
-            #print("ig2")
-            #print("vlist here before inter ",vis.data)
             vis.score = interestingness(vis, ldf)
-            #print("vis score : ", vis.score)
         else:
             vis.score = -1
     
@@ -100,8 +87,6 @@ def correlation(ldf: LuxDataFrame, ignore_transpose: bool = True):
     vlist.sort()
     vlist = vlist.showK()
     recommendation["collection"] = vlist
-    #print("\coree reccomendation \n")
-    #print("reeeee:",recommendation)
     return recommendation
 
 

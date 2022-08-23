@@ -35,7 +35,6 @@ def univariate(ldf, *args):
     recommendations : Dict[str,obj]
             object with a collection of visualizations that result from the Distribution action.
     """
-    #print("inside action univariate")
     import numpy as np
 
     if len(args) == 0:
@@ -98,5 +97,4 @@ def univariate(ldf, *args):
         vis.score = interestingness(vis, ldf)
     vlist.sort()
     recommendation["collection"] = vlist
-    #print("univariate complete")
     return recommendation

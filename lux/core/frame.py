@@ -77,7 +77,6 @@ class LuxDataFrame(cudf.DataFrame):
         "pre_aggregated",
         "_type_override",
     ]
-    #print("init stRTED")
     _history = History()
     _intent = []
     _inferred_intent = []
@@ -92,7 +91,6 @@ class LuxDataFrame(cudf.DataFrame):
     #from lux.executor.PandasExecutor import PandasExecutor
 
     Config.executor = PE.PandasExecutor()
-    #print("testing PE :" , type(Config.executor))
 #     else:
 #         from lux.executor.SQLExecutor import SQLExecutor
     
@@ -109,10 +107,8 @@ class LuxDataFrame(cudf.DataFrame):
     pre_aggregated = None
     _type_override = {}
     #warnings.formatwarning = lux.warning_format
-    #print("init ended")
 
     def __init__(self, *args, **kw):
-        #print("init stRTED inside it")
         self._history = History()
         self._intent = []
         self._inferred_intent = []
@@ -121,7 +117,6 @@ class LuxDataFrame(cudf.DataFrame):
         self._current_vis = []
         self._prev = None
         self._widget = None
-        #super().__init__(*args, **kw)
         super(LuxDataFrame, self).__init__(*args, **kw)
         #super().__init__(*args, **kw)
 
@@ -130,7 +125,6 @@ class LuxDataFrame(cudf.DataFrame):
         #from lux.executor.PandasExecutor import PandasExecutor
 
         Config.executor = PE.PandasExecutor()#PandasExecutor()
-        #print("testing PE inside init :" , type(Config.executor))
 #         else:
 #             from lux.executor.SQLExecutor import SQLExecutor
 
@@ -149,7 +143,6 @@ class LuxDataFrame(cudf.DataFrame):
         self.pre_aggregated = None
         self._type_override = {}
         warnings.formatwarning = lux.warning_format
-        #print("init ended inside it")
 
     @property
     def _constructor2(self):
@@ -182,7 +175,6 @@ class LuxDataFrame(cudf.DataFrame):
         if len(self) > 0:
 #             if lux.config.executor.name != "SQLExecutor":
             #lux.config.executor.compute_stats(self)
-            #print("in compute_metadata: ", type(self))
             PE.PandasExecutor().compute_stats(self)
             #lux.config.executor.compute_dataset_metadata(self)
             PE.PandasExecutor().compute_dataset_metadata(self)
@@ -193,7 +185,6 @@ class LuxDataFrame(cudf.DataFrame):
         """
         Maintain dataset metadata and statistics (Compute only if needed)
         """
-        #print("maintain metadata type : ", type(self))
         is_sql_tbl = False#lux.config.executor.name != "PandasExecutor"
 
 #         if lux.config.SQLconnection != "" and is_sql_tbl:
@@ -207,7 +198,6 @@ class LuxDataFrame(cudf.DataFrame):
             # Check that metadata has not yet been computed
             if not hasattr(self, "_metadata_fresh") or not self._metadata_fresh:
                 # only compute metadata information if the dataframe is non-empty
-                #print("inside maintain metadat lazy type : ", type(self))
                 self.compute_metadata()
         else:
             self.compute_metadata()
@@ -239,7 +229,7 @@ class LuxDataFrame(cudf.DataFrame):
     ## Override Pandas ##
     #####################
     def __getattr__(self, name):
-        ret_value = super(LuxDataFrame, self).__getattr__(name)
+        ret_value = super().__getattr__(name)#LuxDataFrame, self
         self.expire_metadata()
         self.expire_recs()
         return ret_value
@@ -434,7 +424,6 @@ class LuxDataFrame(cudf.DataFrame):
     def maintain_recs(self, is_series="DataFrame"):
         # `rec_df` is the dataframe to generate the recommendations on
         # check to see if globally defined actions have been registered/removed
-        #print("maintain recs called")
         if lux.config.update_actions["flag"] == True:
             self._recs_fresh = False
         show_prev = False  # flag indicating whether rec_df is showing previous df or current self
@@ -451,7 +440,6 @@ class LuxDataFrame(cudf.DataFrame):
         else:
             rec_df = self
             rec_df._message = Message()
-            #print("recs showing now : ", rec_df)
         # Add warning message if there exist ID fields
         if len(rec_df) == 0:
             rec_df._message.add(f"Lux cannot operate on an empty {is_series}.")
@@ -469,7 +457,6 @@ class LuxDataFrame(cudf.DataFrame):
         else:
             id_fields_str = ""
             inverted_data_type = EX.Executor().invert_data_type(rec_df.data_type)#lux.config.executor.invert_data_type(rec_df.data_type)
-            #print("below inverted ---------------")
             if len(inverted_data_type["id"]) > 0:
                 for id_field in inverted_data_type["id"]:
                     id_fields_str += f"<code>{id_field}</code>, "
@@ -490,13 +477,12 @@ class LuxDataFrame(cudf.DataFrame):
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
-            #print("all good here------")
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-                #print("new recinfo list : ", rec_infolist)
+                
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
@@ -504,11 +490,11 @@ class LuxDataFrame(cudf.DataFrame):
 
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
-                #print("custome action : ",custom_action_collection) 
+                
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
                 lux.config.update_actions["flag"] = False
-                #print("new recinfo list : ", rec_infolist)
+                
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             for rec_info in rec_infolist:
@@ -527,79 +513,7 @@ class LuxDataFrame(cudf.DataFrame):
 #                 self._widget = rec_df.render_widget()
         saved_data = pd.DataFrame(rec_infolist).to_csv("data/interesting/test1_interesting.csv")
         print("rec_info here : ", rec_infolist)
-        #LuxDataFrame = 
-#         dat = pd.read_csv("saved_interesting_plots_cudf.csv")
-#         print("self type :", type(self))
-#         df=cudf.DataFrame(self)
-#         print("df here:", df)
-#         #self._recs_fresh = True
-#         adder = False
-#         count=0
-#         for lis in dat['collection']:
-#             lets = lis.split("\n")
-#             counter=0
-#             for let in lets:
-#                 res = re.findall(r'\w+', let)
-#                 graph = res[-4]
-#                 if graph =="histogram":
-#                     starting = time.time()
-#                     xlabel = res[3]
-#                     ylabel = res[6]
-#                     x = df[xlabel]
-#                     x = cupy.fromDlpack(x.to_dlpack())
-#                     frequencies, edges = cupy.histogram(x, bins=10)
-#                     curve=hv.Histogram((edges.get(), frequencies.get()))
-#                     if not adder: adder = curve
-#                     else: adder+=curve
-#                     print("time in histogram :", time.time() -starting)
-#                 elif graph =="bar":
-#                     starting = time.time()
-#                     ylabel = res[5]
-#                     x=df.groupby(ylabel).count()
-#                     x.reset_index(inplace=True) 
-#                     lis = list(zip(x[ylabel].values_host, x.iloc[:, 1].values_host))
-#                     curve = hv.Bars(lis).opts(invert_axes=True)
-#                     if not adder: adder = curve
-#                     else: adder+=curve
-#                     print("time in inverted bar :", time.time() -starting)
-#                 if graph =="line":
-#                     starting = time.time()
-#                     xlabel = res[2]
-#                     factor = re.search(xlabel + '(.*)y', "".join(res)).group(1)
-#                     ylabel = "Record"
-#                     x = cudf.DatetimeIndex(df[xlabel])
-#                     if factor == 'dayofweek':
-#                         x = cudf.DataFrame(x.dayofweek, columns = ["date"])
-#                     elif factor =='month':
-#                         x = cudf.DataFrame(x.month, columns = ["date"])
-#                     elif factor =="year":
-#                         x = cudf.DataFrame(x.year, columns = ["date"])
-#                     else:
-#                         x = cudf.DataFrame(x, columns = ["date"])
-#                     x["count"] = x['date']
-#                     x = x.groupby("date").count()
-#                     x.reset_index(inplace=True)
-#                     x = x.sort_values('date')
-#                     lis = list(zip(x['date'].values_host, x['count'].values_host))
-#                     curve = hv.Curve(lis, hv.Dimension(xlabel), "Number of " +ylabel)
-#                     if not adder: adder = curve
-#                     else: adder+=curve
-#                     print("time in linecurve :", time.time() -starting)
-#                 # elif graph == "scatter":
-#                 #     starting = time.time()
-#                 #     xlabel = res[2]
-#                 #     ylabel = res[4]
-#                 #     x = df[xlabel]
-#                 #     y = df[ylabel]
-#                 #     z = cudf.concat([x,y],axis=1)
-#                 #     curve = datashade(hv.Scatter(z))
-#                 #     count+=1
-#                 #     #For heatmaps, place last cells code here
-#                 #     if not adder: adder = curve
-#                 #     else: adder+=curve
-#                 #     print("time in scatterplot :", time.time() -starting)
 
-#         print("total time : ", time.time()-s)
     #######################################################
     ############## LuxWidget Result Display ###############
     #######################################################
@@ -716,7 +630,6 @@ class LuxDataFrame(cudf.DataFrame):
         from IPython.display import display
         from IPython.display import clear_output
         import ipywidgets as widgets
-        #print("ipython display")
 
         try:
             if self._pandas_only:
@@ -724,22 +637,15 @@ class LuxDataFrame(cudf.DataFrame):
                 self._pandas_only = False
             else:
                 if not self.index.nlevels >= 2 or self.columns.nlevels >= 2:
-                    #print("\n metadata being called now")
                     self.maintain_metadata()
-                    # print("first step meta :\n")
-                    # print(self)
-                    #print("after maintain _metadat")
+    
                     if self._intent != [] and (not hasattr(self, "_compiled") or not self._compiled):
                         from lux.processor.Compiler import Compiler
-                        #print("inside intent condition")
                         self.current_vis = Compiler.compile_intent(self, self._intent)
-                        #print("\n self.current vus ++++++++++++++:\n")
-                        #print(self.current_vis)
                 if lux.config.default_display == "lux":
                     self._toggle_pandas_display = False
                 else:
                     self._toggle_pandas_display = True
-                #print("meta maintain :", self)
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 self.maintain_recs()
 

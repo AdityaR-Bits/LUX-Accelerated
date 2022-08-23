@@ -48,7 +48,6 @@ def get_filter_specs(intent):
         return []
     
     spec_obj = list(filter(lambda x: x.value != "", intent))
-    #print("spec obj here :", spec_obj)
     return spec_obj
 
 
@@ -80,7 +79,6 @@ def check_if_id_like(df, attribute):
 
     # Strong signals
     # so that aggregated reset_index fields don't get misclassified
-    #print("utils check id called")
     high_cardinality = df.cardinality[attribute] > 500
     attribute_contain_id = re.search(r"id|ID|iD|Id", str(attribute)) is not None
     almost_all_vals_unique = df.cardinality[attribute] >= 0.98 * len(df)
@@ -116,9 +114,7 @@ def check_if_id_like(df, attribute):
             # new_df= new_df.reset_index()
             #if new_df[1].equals( df_compare):
             new_diff = diff.to_pandas()
-            #print("new diff :", new_diff)
             if all(new_diff.iloc[1:] == new_diff.iloc[1]):
-                #print("even soacle")
                 evenly_spaced = True
             else:  evenly_spaced = False
            

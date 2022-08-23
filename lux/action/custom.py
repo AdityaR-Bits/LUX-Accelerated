@@ -63,22 +63,17 @@ def custom_actions(ldf):
     recommendations : Dict[str,obj]
         object with a collection of visualizations that were previously registered.
     """
-    #print("\n inside custom_actions \n")
     if len(lux.config.actions) > 0 and (len(ldf) > 0 or lux.config.executor.name != "PandasExecutor"):
         recommendations = []
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
+            #print("ldf in custom", ldf.current_vis)
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
                 args = lux.config.actions[action_name].args
                 if args:
                     recommendation = lux.config.actions[action_name].action(ldf, args)
-                    # print("action name 1 : ", action_name)
-                    # print("args1 :", args)
-                    # print("\n rec1 ", recommendation)
                 else:
                     recommendation = lux.config.actions[action_name].action(ldf)
-                    # print("action name 2 : ", action_name)
-                    # print("\n rec2 ", recommendation)
                 recommendations.append(recommendation)
         return recommendations
     else:
