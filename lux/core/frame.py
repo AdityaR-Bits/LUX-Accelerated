@@ -107,6 +107,7 @@ class LuxDataFrame(cudf.DataFrame):
     _min_max = None
     pre_aggregated = None
     _type_override = {}
+    global graph_all
     #warnings.formatwarning = lux.warning_format
 
     def __init__(self, *args, **kw):
@@ -605,6 +606,9 @@ class LuxDataFrame(cudf.DataFrame):
                 stacklevel=2,
             )
             return []
+    
+    def hlv(self):
+        return graph_all
 
     def remove_deleted_recs(self, change):
         for action in self._widget.deletedIndices:
@@ -655,6 +659,8 @@ class LuxDataFrame(cudf.DataFrame):
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 adds = self.maintain_recs()
                 print("adds type", type(adds))
+                graph_all = adds
+                
 
                 # Observers(callback_function, listen_to_this_variable)
 #                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
