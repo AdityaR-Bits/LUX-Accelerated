@@ -77,12 +77,13 @@ class LuxSeries(cudf.Series):
 
     @property
     def _constructor2(self):
+        print("_constructor2")
         return LuxSeries
 
     @property
     def _constructor_expanddim2(self):
         from lux.core.frame import LuxDataFrame
-
+        print("_constructor_expanddim2")
         def f(*args, **kwargs):
             df = LuxDataFrame(*args, **kwargs)
             for attr in self._metadata:
@@ -105,7 +106,7 @@ class LuxSeries(cudf.Series):
         pd.Series
         """
         import lux.core
-
+        print("to_pandas2")
         return lux.core.originalSeries(self, copy=False)
 
     def unique(self):

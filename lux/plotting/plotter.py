@@ -15,10 +15,12 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def plots():
-    print("inside new plotter", type(cudf.DataFrame()))
-    dat = pd.read_csv("data/interesting/test1_interesting.csv") #in pandas as few rows only
-    df = cudf.read_csv("data/hpi.csv")
+
+def plots(df,dat):
+    
+    pd.DataFrame(dat).to_csv("dummy.csv") 
+    dat = pd.read_csv("dummy.csv")
+    df = df.to_pandas2()
     print("pd type", type(dat))
     print("cd type", type(df))
     adder = False
@@ -35,6 +37,7 @@ def plots():
                 starting = time.time()
                 xlabel = res[3]
                 ylabel = res[6]
+                x = cudf.Series(df[xlabel])
                 #x = LuxDataFrame(df[xlabel])
                 x = cupy.fromDlpack(x.to_dlpack())
                 frequencies, edges = cupy.histogram(x, bins=10)
@@ -114,8 +117,8 @@ def plots():
                 starting = time.time()
                 xlabel = res[2]
                 ylabel = res[4]
-                x = df[xlabel]
-                y = df[ylabel]
+                x = cudf.Series(df[xlabel])
+                y = cudf.Series(df[ylabel])
                 z = cudf.concat([x,y],axis=1)
                 if abs(x.max())>10000: form = '%.1e'
                 curve = rasterize(hv.Scatter(z)).opts(axiswise=True, xformatter = form, xlabel=xlabel, ylabel=ylabel, title = graph +" : "+str(grph_num), tools=["hover", ],cmap=['blue'])#,threshold=0.75)#yformatter='%.1e', 
@@ -123,30 +126,30 @@ def plots():
                 if adder==False: adder = curve
                 else: adder+=curve
                 print("time in scatterplot :", time.time() -starting)
-            elif graph =="geographical":
-                starting = time.time()
-                geo = res[2]
-                vals = res[5]
-                x=df.groupby(geo).mean()
-                x.reset_index(inplace=True)
-                if not flag:
-                    if geo in ["states","state","States","State", "STATES", "STATE"]:
-                        geography = gpd.read_file("us-states.json")
-                        if isinstance(x[geo].iloc[0],numpy.int64):
-                            left_name = "fips_num"
-                            geography[left_name] = geography["id"].apply(lambda x: int(state_codes[x]))
-                        geography_pop = geography.merge(x.to_pandas(), left_on=left_name, right_on=geo)
-                    elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
-                        geography = gpd.read_file("countries.geojson")
-                        geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
-                    flag =True
-                if geo in ["states","state","States","State", "STATES", "STATE"]:
-                    curve = rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo])).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
-                elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
-                    curve =  rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right")).opts(axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
-                grph_num+=1
-                if adder==False: adder = curve
-                else: adder+=curve
-                print("time in choropleth :", time.time() -starting)
+            # elif graph =="geographical":
+            #     starting = time.time()
+            #     geo = res[2]
+            #     vals = res[5]
+            #     x=df.groupby(geo).mean()
+            #     x.reset_index(inplace=True)
+            #     if not flag:
+            #         if geo in ["states","state","States","State", "STATES", "STATE"]:
+            #             geography = gpd.read_file("us-states.json")
+            #             if isinstance(x[geo].iloc[0],numpy.int64):
+            #                 left_name = "fips_num"
+            #                 geography[left_name] = geography["id"].apply(lambda x: int(state_codes[x]))
+            #             geography_pop = geography.merge(x.to_pandas(), left_on=left_name, right_on=geo)
+            #         elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
+            #             geography = gpd.read_file("countries.geojson")
+            #             geography_pop = geography.merge(x.to_pandas(), left_on="ADMIN", right_on=geo)
+            #         flag =True
+            #     if geo in ["states","state","States","State", "STATES", "STATE"]:
+            #         curve = rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo])).opts(axiswise=True, xlim=(-170, -60), ylim=(10,75),  height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
+            #     elif geo in ["Country", "COUNTRY", "country", "COUNTRIES","countries", "Countries"]:
+            #         curve =  rasterize(hv.Polygons(data=geography_pop, vdims=[vals, geo]).opts(colorbar=True, colorbar_position="right")).opts(axiswise=True, height=300, width=400, title=vals+" : "+str(grph_num), tools=["hover", ])#, colorbar=True, colorbar_position="right"
+            #     grph_num+=1
+            #     if adder==False: adder = curve
+            #     else: adder+=curve
+            #     print("time in choropleth :", time.time() -starting)
     print("adder type;", type(adder))
     return adder

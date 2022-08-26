@@ -16,6 +16,7 @@ import pandas as pd
 from lux.core.series import LuxSeries
 from lux.vis.Clause import Clause
 from lux.vis.Vis import Vis
+from lux.plotting.plotter import plots
 #from lux.vis.VisList import VisList
 import lux.vis.VisList as VT
 from lux.history.history import History
@@ -27,7 +28,7 @@ from typing import Dict, Union, List, Callable
 import lux.executor.PandasExecutor as PE
 import lux.executor.Executor as EX
 #from lux.executor.PandasExecutor2 import PandasExecutor
-
+import geopandas as gpd
 # #these are added from pandasexecutor
 # from lux.executor.Executor import Executor
 # from lux.utils import utils
@@ -42,8 +43,8 @@ import re
 import cudf
 import time
 import cupy
-from holoviews.operation.datashader import datashade
-
+from holoviews.operation.datashader import datashade, rasterize
+#from . import setOption
 # from lux.executor.Executor import *
 import warnings
 import traceback
@@ -383,6 +384,7 @@ class LuxDataFrame(cudf.DataFrame):
 
             self.maintain_metadata()
             self.current_vis = Compiler.compile_intent(self, self._intent)
+            print("recommendation called")
             self.maintain_recs()
         return self._recommendation
 
@@ -511,8 +513,12 @@ class LuxDataFrame(cudf.DataFrame):
 #             rec_df.show_all_column_vis()
 #             if lux.config.render_widget:
 #                 self._widget = rec_df.render_widget()
-        saved_data = pd.DataFrame(rec_infolist).to_csv("data/interesting/test1_interesting.csv")
-        print("rec_info here : ", rec_infolist)
+        # saved_data = pd.DataFrame(rec_infolist)#.to_csv("data/interesting/test1_interesting.csv")
+        graphs= plots(rec_df, rec_infolist)
+        print("graph type:",type(graphs))
+        return graphs
+        
+        
 
     #######################################################
     ############## LuxWidget Result Display ###############
@@ -647,7 +653,8 @@ class LuxDataFrame(cudf.DataFrame):
                 else:
                     self._toggle_pandas_display = True
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
-                self.maintain_recs()
+                adds = self.maintain_recs()
+                print("adds type", type(adds))
 
                 # Observers(callback_function, listen_to_this_variable)
 #                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
@@ -756,12 +763,12 @@ class LuxDataFrame(cudf.DataFrame):
 #         intent["filters"] = [clause.attribute for clause in filter_specs]
 #         return intent
 
-    @staticmethod
-    def intent_to_string(intent):
-        if intent:
-            return ", ".join([clause.to_string() for clause in intent])
-        else:
-            return ""
+    # @staticmethod
+    # def intent_to_string(intent):
+    #     if intent:
+    #         return ", ".join([clause.to_string() for clause in intent])
+    #     else:
+    #         return ""
 
 #     def to_JSON(self, rec_infolist, input_current_vis=""):
 #         widget_spec = {}
