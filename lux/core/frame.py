@@ -373,7 +373,7 @@ class LuxDataFrame(cudf.DataFrame):
 
         self.expire_recs()
 
-    def to_pandas2(self):
+    def to_cudf(self):
         import lux.core
 
         return lux.core.originalDF(self)#, copy=False)
@@ -516,8 +516,7 @@ class LuxDataFrame(cudf.DataFrame):
 #                 self._widget = rec_df.render_widget()
         # saved_data = pd.DataFrame(rec_infolist)#.to_csv("data/interesting/test1_interesting.csv")
         graphs= plots(rec_df, rec_infolist)
-        print("graph type:",type(graphs))
-        return graphs
+        return hv.Layout(graphs)
         
         
 
@@ -660,7 +659,7 @@ class LuxDataFrame(cudf.DataFrame):
                 adds = self.maintain_recs()
                 print("adds type", type(adds))
                 graph_all = adds
-                
+                return graph_all
 
                 # Observers(callback_function, listen_to_this_variable)
 #                 self._widget.observe(self.remove_deleted_recs, names="deletedIndices")
@@ -705,7 +704,7 @@ class LuxDataFrame(cudf.DataFrame):
                 raise
 
     def display_pandas(self):
-        return self.to_pandas2()
+        return self.to_cudf()
 
 #     def render_widget(self, renderer: str = "altair", input_current_vis=""):
 #         """

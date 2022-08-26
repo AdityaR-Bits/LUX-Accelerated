@@ -1,7 +1,7 @@
 # LUX-Accelerated
 
-First : generate interestingness values chart -> run lux_integration.ipynb, it will save the interestingness scores in data/interesting/test1_interesting.csv
+Run lux_integration.ipynb as a demo. This code provides cuDF acceleration with HoloViews plotting for running LUX on big data.
 
-Second : to generate LUX plots from the given interestingness values chart -> run final_plotter.ipynb
+On a 12.7 million rows dataset (NVIDIA RTX A3000 Laptop GPU), it achieves 84% reduction in time.
 
 Upload dataset to "data", or use download data obtained from https://drive.google.com/drive/folders/1PWrjS1IkaKF-PQghOw3qIwm9l6rqut7r?usp=sharing

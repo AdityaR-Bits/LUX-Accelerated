@@ -31,7 +31,7 @@ def plots(df,dat):
 }
     
     dat=pd.DataFrame(dat)
-    df = df.to_pandas2()
+    df = df.to_cudf()
     adder = False
     flag = False
     left_name="name"
@@ -43,11 +43,10 @@ def plots(df,dat):
             graph = res[-4]
             form = ""
             if graph =="histogram":
-                starting = time.time()
+                #starting = time.time()
                 xlabel = res[3]
                 ylabel = res[6]
                 x = cudf.Series(df[xlabel])
-                #x = LuxDataFrame(df[xlabel])
                 x = cupy.fromDlpack(x.to_dlpack())
                 frequencies, edges = cupy.histogram(x, bins=10)
                 alpha = time.time()
@@ -63,27 +62,27 @@ def plots(df,dat):
                 grph_num+=1
                 if not adder: adder = curve
                 else: adder+=curve
-                print("time in histogram :", time.time() -starting)
+                #print("time in histogram :", time.time() -starting)
             elif graph =="bar":
-                starting = time.time()
+                #starting = time.time()
                 xlabel ="Records"
                 ylabel = res[5]
                 x=df.groupby(ylabel).count()
                 x.reset_index(inplace=True) 
                 lis = list(zip(x[ylabel].values_host, x.iloc[:, 1].values_host))
                 if len(lis)>10: 
-                    a=time.time()
+                    #a=time.time()
                     lis.sort(key=lambda x:x[1],reverse=True)
                     lis=lis[:10]
-                    print("========", time.time()-a)
+                    #print("========", time.time()-a)
                 if abs(x.iloc[:, 1].max())>10000: form = '%.1e'
                 curve = hv.Bars(lis).opts(invert_axes=True).opts(axiswise=True, xlabel=ylabel, ylabel =xlabel,xformatter=form, title = graph +" : "+str(grph_num), tools=["hover", ])
                 grph_num+=1
                 if not adder: adder = curve
                 else: adder+=curve
-                print("time in inverted bar :", time.time() -starting)
+                #print("time in inverted bar :", time.time() -starting)
             elif graph =="line":
-                starting = time.time()
+                #starting = time.time()
                 xlabel = res[2]
                 factor = re.search(xlabel + '(.*)y', "".join(res)).group(1)
                 ylabel = "Records"
@@ -116,26 +115,25 @@ def plots(df,dat):
                 x.reset_index(inplace=True)
                 lis = list(zip(x['level_0'].values_host, x['count'].values_host)) if len(factor)==0 else list(zip(x['date'].values_host, x['count'].values_host))
                 curve = rasterize(hv.Curve(lis)).opts(axiswise=True,yformatter='%.1e', xlabel=xlabel, ylabel=ylabel , title = graph +" : "+str(grph_num),tools=["hover", ])
-                #curve = datashade(hv.Curve(lis, hv.Dimension(xlabel), "Number of " +ylabel)).opts(axiswise=True,yformatter='%.1e', xlabel=xlabel, ylabel=ylabel , title = graph +" : "+str(grph_num))
                 grph_num+=1
                 if adder==False: adder = curve
                 else: adder+=curve
-                print("time in linecurve :", time.time() -starting)
+                #print("time in linecurve :", time.time() -starting)
             elif graph == "scatter":
-                starting = time.time()
+                #starting = time.time()
                 xlabel = res[2]
                 ylabel = res[4]
-                x = cudf.Series(df[xlabel])
-                y = cudf.Series(df[ylabel])
+                x = cudf.DataFrame(df[xlabel],columns=[xlabel])
+                y = cudf.DataFrame(df[ylabel],columns=[ylabel])
                 z = cudf.concat([x,y],axis=1)
-                if abs(x.max())>10000: form = '%.1e'
-                curve = rasterize(hv.Scatter(z)).opts(axiswise=True, xformatter = form, xlabel=xlabel, ylabel=ylabel, title = graph +" : "+str(grph_num), tools=["hover", ],cmap=['blue'])#,threshold=0.75)#yformatter='%.1e', 
+                #if abs(x.max())>10000: form = '%.1e'
+                curve = rasterize(hv.Scatter(z)).opts(axiswise=True, xformatter = form, xlabel=xlabel, ylabel=ylabel, title = graph +" : "+str(grph_num), tools=["hover", ],cmap=['blue'])#,threshold=0.75)#
                 grph_num+=1
                 if adder==False: adder = curve
                 else: adder+=curve
-                print("time in scatterplot :", time.time() -starting)
+                #print("time in scatterplot :", time.time() -starting)
             elif graph =="geographical":
-                starting = time.time()
+                #starting = time.time()
                 geo = res[2]
                 vals = res[5]
                 x=df.groupby(geo).mean()
@@ -158,6 +156,5 @@ def plots(df,dat):
                 grph_num+=1
                 if adder==False: adder = curve
                 else: adder+=curve
-                print("time in choropleth :", time.time() -starting)
-    print("adder type;", type(adder))
+                #print("time in choropleth :", time.time() -starting)
     return adder
