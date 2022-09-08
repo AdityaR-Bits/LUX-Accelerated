@@ -17,7 +17,7 @@ import lux
 from lux.executor.PandasExecutor import PandasExecutor
 from lux.executor.SQLExecutor import SQLExecutor
 import lux
-
+import time
 
 def custom(ldf):
     """
@@ -67,10 +67,13 @@ def custom_actions(ldf):
         recommendations = []
         for action_name in lux.config.actions.keys():
             display_condition = lux.config.actions[action_name].display_condition
+           
             #print("ldf in custom", ldf.current_vis)
             if display_condition is None or (display_condition is not None and display_condition(ldf)):
                 args = lux.config.actions[action_name].args
+                
                 if args:
+                 
                     recommendation = lux.config.actions[action_name].action(ldf, args)
                 else:
                     recommendation = lux.config.actions[action_name].action(ldf)

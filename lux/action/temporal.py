@@ -20,7 +20,7 @@ from lux.core.frame import LuxDataFrame
 from lux.interestingness.interestingness import interestingness
 from lux.utils import utils
 import cudf
-
+import time
 def temporal(ldf):
     """
     Generates line charts for temporal fields at different granularities.
@@ -89,32 +89,27 @@ def create_temporal_vis(ldf, col):
             Collection of Vis objects.
     """
     formatted_date = cudf.to_datetime(ldf[col])
-
     overall_vis = Vis([lux.Clause(col, data_type="temporal")], source=ldf, score=5)
 
     year_col = col + " (year)"
     year_df = LuxDataFrame({year_col: cudf.to_datetime(formatted_date.year)})
     year_vis = Vis([lux.Clause(year_col, data_type="temporal")], source=year_df, score=4)
-
     month_col = col + " (month)"
     month_df = LuxDataFrame({month_col: formatted_date.month})
     month_vis = Vis(
         [lux.Clause(month_col, data_type="temporal", timescale="month")], source=month_df, score=3
     )
-
     day_col = col + " (day)"
     day_df = LuxDataFrame({day_col: formatted_date.day})
     day_df.set_data_type(
         {day_col: "nominal"}
     )  # Since day is high cardinality 1-31, it can get recognized as quantitative
     day_vis = Vis([lux.Clause(day_col, data_type="temporal", timescale="day")], source=day_df, score=2)
-
     week_col = col + " (day of week)"
     week_df = lux.LuxDataFrame({week_col: formatted_date.dayofweek})
     week_vis = Vis(
         [lux.Clause(week_col, data_type="temporal", timescale="day of week")], source=week_df, score=1
     )
-
     unique_year_values = len(year_df[year_col].unique())
     unique_month_values = len(month_df[month_col].unique())
     unique_week_values = len(week_df[week_col].unique())

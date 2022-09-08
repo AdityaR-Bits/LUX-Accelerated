@@ -36,9 +36,7 @@ import geopandas as gpd
 # from lux.utils.utils import check_import_lux_widget, check_if_id_like, is_numeric_nan_column
 # from lux.utils.tracing_utils import LuxTracer
 
-import holoviews as hv
 import datetime
-hv.extension('bokeh')
 import re
 import cudf
 import time
@@ -50,7 +48,7 @@ import warnings
 import traceback
 import lux
 import cudf as cf
-
+import time
 class LuxDataFrame(cudf.DataFrame):
     """
     A subclass of pd.DataFrame that supports all dataframe operations while housing other variables and functions for generating visual recommendations.
@@ -385,7 +383,6 @@ class LuxDataFrame(cudf.DataFrame):
 
             self.maintain_metadata()
             self.current_vis = Compiler.compile_intent(self, self._intent)
-            print("recommendation called")
             self.maintain_recs()
         return self._recommendation
 
@@ -465,7 +462,7 @@ class LuxDataFrame(cudf.DataFrame):
                     id_fields_str += f"<code>{id_field}</code>, "
                 id_fields_str = id_fields_str[:-2]
                 rec_df._message.add(f"{id_fields_str} is not visualized since it resembles an ID field.")
-
+        
         rec_df._prev = None  # reset _prev
         
         # If lazy, check that recs has not yet been computed
@@ -473,31 +470,34 @@ class LuxDataFrame(cudf.DataFrame):
             not hasattr(rec_df, "_recs_fresh") or not rec_df._recs_fresh
         )
         eager = not lux.config.lazy_maintain
-
+        
         # Check that recs has not yet been computed
         if lazy_but_not_computed or eager:
             is_sql_tbl = False#lux.config.executor.name == "SQLExecutor"
             rec_infolist = []
             from lux.action.row_group import row_group
             from lux.action.column_group import column_group
+            
             # TODO: Rewrite these as register action inside default actions
             if rec_df.pre_aggregated:
                 if rec_df.columns.name is not None:
                     rec_df._append_rec(rec_infolist, row_group(rec_df))
                 rec_df._append_rec(rec_infolist, column_group(rec_df))
-                
+        
             elif not (len(rec_df) < 5 and not rec_df.pre_aggregated and not is_sql_tbl) and not (
                 self.index.nlevels >= 2 or self.columns.nlevels >= 2
             ):
                 from lux.action.custom import custom_actions
-
+               
                 # generate vis from globally registered actions and append to dataframe
                 custom_action_collection = custom_actions(rec_df)
-                
+               
                 for rec in custom_action_collection:
                     rec_df._append_rec(rec_infolist, rec)
-                lux.config.update_actions["flag"] = False
                 
+                lux.config.update_actions["flag"] = False
+             
+            
             # Store _rec_info into a more user-friendly dictionary form
             rec_df._recommendation = {}
             for rec_info in rec_infolist:
@@ -515,8 +515,9 @@ class LuxDataFrame(cudf.DataFrame):
 #             if lux.config.render_widget:
 #                 self._widget = rec_df.render_widget()
         # saved_data = pd.DataFrame(rec_infolist)#.to_csv("data/interesting/test1_interesting.csv")
+       
         graphs= plots(rec_df, rec_infolist)
-        return hv.Layout(graphs)
+        return graphs
         
         
 
@@ -657,7 +658,6 @@ class LuxDataFrame(cudf.DataFrame):
                     self._toggle_pandas_display = True
                 # df_to_display.maintain_recs() # compute the recommendations (TODO: This can be rendered in another thread in the background to populate self._widget)
                 adds = self.maintain_recs()
-                print("adds type", type(adds))
                 graph_all = adds
                 return graph_all
 
